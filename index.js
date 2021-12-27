@@ -345,9 +345,9 @@ module.exports.pluck = pluck;
  * @param {Array or Object} coll: The collection over which to iterate.
  * @param {Function} func: The Function to be applied to each value in the collection
  * 
- * @returns {Boolean}: If the return value of calling that function for every element 
- * is true, returns true.  If even one of them returns false, returns false.  If 
- * function input is not provided, return true if every element is truthy, otherwise 
+ * @returns {Boolean} result: If the return value of calling that function for every 
+ * element is true, returns true.  If even one of them returns false, returns false.  
+ * If function input is not provided, return true if every element is truthy, otherwise 
  * return false.
  * 
  * Examples:
@@ -385,10 +385,10 @@ module.exports.every = every;
  * @param {Array or Object} coll: The collection over which to iterate.
  * @param {Function} func: The Function to be applied to each value in the collection
  * 
- * @returns {Boolean}: If the return value of calling that function for at least one 
- * element is true, returns true.  If not even one of them returns true, returns false.  
- * If function input is not provided, return true if at least one element is truthy, 
- * otherwise return false.
+ * @returns {Boolean} result: If the return value of calling that function for at least 
+ * one element is true, returns true.  If not even one of them returns true, returns 
+ * false.  If function input is not provided, return true if at least one element is 
+ * truthy, otherwise return false.
  * 
  * Examples:
  *   some([1,3,5], function(e){return e % 2 === 0}) -> false
@@ -413,3 +413,63 @@ module.exports.every = every;
     return result;
 }
 module.exports.some = some;
+
+
+/**
+ * reduce: Designed to apply a user-supplied func or callback function on each element in the 
+ * array, in order, passing in the return value from the calculation on the preceding element.
+ * The final result of running the callback function across all elements of the array is a 
+ * single value.  The first time that the callback is run there is no "return value of the 
+ * previous calculation".  If supplied, an initial value (seed) may be used in its place.  
+ * Otherwise array element 0 is used as the initial value and iteration starts from the next 
+ * element (index 1 instead of index 0).
+ * 
+ * @param {Array} arr: The collection over which to iterate.
+ * @param {Function} func: The Function to be applied to each value in the collection
+ * @param {Seed} seed: The initial value if supplied.
+ * 
+ * @returns {Anything} sum: After the last iteration, return the return value of the final callback
+ * function call.  The data type depends on the value within the input array elements. 
+ * 
+ * Examples:
+ *   reduce([1,2,3], function(previousSum, currentValue, currentIndex) { 
+ *      return previousSum + currentValue }, 0) -> 6
+ */
+function reduce(arr, func, seed) {
+    let sum = seed;
+    let i = 0; 
+    if (sum === undefined) {
+        sum = arr[0]; 
+        i++;
+    }
+	for (; i < arr.length; i++) {
+        const el = arr[i];
+		sum = func(sum, el, i);
+	}
+	return sum;   
+}
+module.exports.reduce = reduce;
+
+
+/**
+ * extend: Designed to copy properties from subsequent input object parameters into the first or 
+ * target input object parameter in the order the objects are passed into the function as input 
+ * parameters then returns the updated target object.
+ * 
+ * @param {Object} obj1: The target object for properties to be copied into.
+ * @param {Object} obj2: The first object to copy properties from into target object.
+ * @param {Possibly more objects} Arguments: Placeholder for subsequent objects that may 
+ * or may not be passed into the function as input parameters.
+ * 
+ * @returns {Object} obj1: Returns the target object updated with the properties from subsequent 
+ * input object parameters in the order they were passed into the function.
+ * 
+ * Examples:
+ *   var data = {a:"one"};
+ *   extend(data, {b:"two"}); -> data now equals {a:"one",b:"two"}
+ *   extend(data, {a:"two"}); -> data now equals {a:"two"}
+ */
+ function extend(obj1, obj2, Arguments) {
+    return Object.assign(obj1, obj2, Arguments); 
+}
+module.exports.extend = extend;
