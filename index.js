@@ -107,8 +107,9 @@ module.exports.last = last;
  * @param {Array} array: The array to search. 
  * @param {Array, Number, Boolean, Undefined, String} value: Any input value.
  * 
- * @returns {Number}: Returns the index of the first occurence of the input value inside 
- * the input array.  If input value is not found inside the input array, returns -1. 
+ * @returns {Number} -1 || Number > -1: Returns the index of the first occurence of the input 
+ * value inside the input array.  If input value is not found inside the input array, 
+ * returns -1. 
  * 
  * Examples:
  *  indexOf(["a","b","c"], "c") -> 2
@@ -134,8 +135,8 @@ module.exports.indexOf = indexOf;
  * @param {Array} array: The array to search. 
  * @param {Array, Number, Boolean, Undefined, String} value: Any input value.
  * 
- * @returns {Boolean}: Returns true if the input value is present within the input array, 
- * and false if input value is not found inside the input array. 
+ * @returns {Boolean} true or false: Returns true if the input value is present within 
+ * the input array, and false if input value is not found inside the input array. 
  * 
  * Examples:
  *  contains([1,"two", 3.14], "two") -> true
@@ -182,15 +183,15 @@ module.exports.each = each;
  * 
  * @param {Array} arr: The array over which to iterate.
  * 
- * @returns {Array}: Returns a new array of all elements from input array with any 
- * duplicated removed.
+ * @returns {Array} output: Returns a new array of all elements from input array 
+ * with any duplicated removed.
  * 
  * Examples:
  *   unique([1,2,2,4,5,6,5,2]) -> [1,2,4,5,6]
  */
  function unique(arr) {
     let output = [];
-    each(arr, function(el, i, c) {
+    each(arr, function(el) {
         if (output.indexOf(el) === -1) {
             output.push(el);
         }
@@ -209,8 +210,8 @@ module.exports.unique = unique;
  * @param {Function} func: The function to be applied to each element of the 
  * input array.
  * 
- * @returns {Array}: Returns a new array of elements for which calling input function  
- * returns true.
+ * @returns {Array} output: Returns a new array of elements for which calling 
+ * input function returns true.
  * 
  * Examples:
  *   filter([1,2,3,4,5], function(x) { return x % 2 === 0 }) -> [2,4]
@@ -236,8 +237,8 @@ module.exports.filter = filter;
  * @param {Function} func: The function to be applied to each element of the 
  * input array.
  * 
- * @returns {Array}: Returns a new array of elements for which calling input function  
- * returns false.
+ * @returns {Array} rejected: Returns a new array of elements for which calling 
+ * input function returns false.
  * 
  * Examples:
  *   reject([1,2,3,4,5], function(e){return e%2 === 0}) -> [1,3,5]
@@ -265,10 +266,10 @@ module.exports.reject = reject;
  * @param {Function} func: The function to be applied to each element of the 
  * input array.
  * 
- * @returns {Array of arrays}: Returns a new array made up of two sub arrays: one sub 
- * array should contain all the values for which calling that function returned 
- * something truthy, and the other sub array should contain all the values for which 
- * calling that function returned something falsy.
+ * @returns {Array of arrays} output: Returns a new array made up of two sub arrays: 
+ * one sub  array should contain all the values for which calling that function 
+ * returned something truthy, and the other sub array should contain all the values 
+ * for which calling that function returned something falsy.
  * 
  * Examples:
  *   partition([1,2,3,4,5], function(element,index,arr) {
@@ -300,7 +301,7 @@ module.exports.partition = partition;
  * @param {Array or Object} coll: The collection over which to iterate.
  * @param {Function} func: The Function to be applied to each value in the collection
  * 
- * @returns {Array}: Returns a new array made up of the saved return values of each 
+ * @returns {Array} output: Returns a new array made up of the saved return values of each 
  * function call.
  * 
  * Examples:
@@ -314,3 +315,101 @@ module.exports.partition = partition;
     return output;
 }
 module.exports.map = map;
+
+
+/**
+ * pluck: Designed to map over an Array of objects, and return a new array containing 
+ * the value of property input for each element in the input array.
+ * 
+ * @param {Array of objects} arr: The array of objects to map.
+ * @param {Property} prop: The property value within each element to return.
+ * 
+ * @returns {Array}: Returns a new array containing the value of property input for each 
+ * element in the input array.
+ * 
+ * Examples:
+ *   pluck([{a: "one"}, {a: "two"}], "a") -> ["one", "two"]
+ */
+ function pluck(arr, prop) {
+    return map(arr, (arr => arr[prop])); 
+}
+module.exports.pluck = pluck;
+
+
+/**
+ * every: Designed to loop over a collection, Array or Object, and applies the func or 
+ * action Function to each value in the collection.  If the return value of calling 
+ * that function for every element is true, returns true. Otherwise returns false. If no 
+ * function is provided return true if every element is truthy, otherwise return false.
+ * 
+ * @param {Array or Object} coll: The collection over which to iterate.
+ * @param {Function} func: The Function to be applied to each value in the collection
+ * 
+ * @returns {Boolean}: If the return value of calling that function for every element 
+ * is true, returns true.  If even one of them returns false, returns false.  If 
+ * function input is not provided, return true if every element is truthy, otherwise 
+ * return false.
+ * 
+ * Examples:
+ *   every([2,4,6], function(e) { return e % 2 === 0 }) -> true
+ *   every([1,2,3], function(e) { return e % 2 === 0 }) -> false
+ */
+ function every(coll, func) {
+    if (func === undefined) { func = _.identity; }
+    let result = true;
+    if (Array.isArray(coll)) {
+        for (let i = 0; i < coll.length; i++) {
+            if (!func(coll[i], i, coll)) { 
+               return false;
+            }
+        }
+    } else {
+            for (let key in coll) {
+                if (!func(coll[key], key, coll)) {
+                    return false;
+                }
+            }
+    }
+    return result; 
+}
+module.exports.every = every;
+
+
+/**
+ * some: Designed to loop over a collection, Array or Object, and applies the func or 
+ * action Function to each value in the collection.  If the return value of calling 
+ * that function for at least one element is true, returns true. Otherwise returns 
+ * false.  If no function is provided return true if every element is truthy, otherwise 
+ * return false.
+ * 
+ * @param {Array or Object} coll: The collection over which to iterate.
+ * @param {Function} func: The Function to be applied to each value in the collection
+ * 
+ * @returns {Boolean}: If the return value of calling that function for at least one 
+ * element is true, returns true.  If not even one of them returns true, returns false.  
+ * If function input is not provided, return true if at least one element is truthy, 
+ * otherwise return false.
+ * 
+ * Examples:
+ *   some([1,3,5], function(e){return e % 2 === 0}) -> false
+ *   some([1,2,3], function(e){return e % 2 === 0}) -> true
+ */
+ function some(coll, func) {
+    if (func === undefined) { func = _.identity; }
+    let result = false;
+    if (Array.isArray(coll)) {
+        for (let i = 0; i < coll.length; i++) {
+            if (func(coll[i], i, coll)) {
+               return true;
+            }
+        }
+    } else {
+            for (let key in coll) {
+                if (func(coll[key], key, coll)) {
+                    return true;
+                }
+            }
+    }
+    return result;
+}
+module.exports.some = some;
