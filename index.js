@@ -155,16 +155,22 @@ module.exports.contains = contains;
  * @param {Array or Object} collection: The collection over which to iterate.
  * @param {Function} action: The Function to be applied to each value in the 
  * collection
+ * 
+ * @returns {}: Does not return any value.
+ * 
+ * Examples:
+ *   each(["a","b","c"], function(e,i,a){ console.log(e)});
+ *    -> should log "a" "b" "c" to the console
  */
-function each(collection, action) {
-    if(Array.isArray(collection)) {
-        for(var i = 0; i < collection.length; i++) {
-            action(collection[i], i, collection);
+function each(coll, func) {
+    if (Array.isArray(coll)) {
+        for (let i = 0; i < coll.length; i++) {
+            func(coll[i], i, coll);
         }
     } else {
-        for (var key in collection) {
-            action(collection[key], key, collection);
-        }
+            for (let key in coll) {
+                func(coll[key], key, coll);
+            }
     }
 }
 module.exports.each = each;
